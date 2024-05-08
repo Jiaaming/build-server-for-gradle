@@ -6,6 +6,14 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Attach",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": "8989",
+      "projectName": "server"
+    },
+    {
+      "type": "java",
       "name": "Attach Plugin",
       "request": "attach",
       "hostName": "localhost",
