@@ -60,10 +60,13 @@ import ch.epfl.scala.bsp4j.TestParams;
 import ch.epfl.scala.bsp4j.TestResult;
 import ch.epfl.scala.bsp4j.WorkspaceBuildTargetsResult;
 
+import ch.epfl.scala.bsp4j.extended.TaskServer;
+import ch.epfl.scala.bsp4j.extended.GetBuildParams;
+import ch.epfl.scala.bsp4j.extended.GetBuildResult;
 /**
  * The implementation of the Build Server Protocol.
  */
-public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBuildServer {
+public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBuildServer, TaskServer {
 
   private LifecycleService lifecycleService;
 
@@ -202,6 +205,12 @@ public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBui
       ScalaMainClassesParams params) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'buildTargetScalaMainClasses'");
+  }
+
+  @Override
+  public CompletableFuture<GetBuildResult> getBuild(GetBuildParams params) {
+	// TODO Auto-generated method stub
+	throw new UnsupportedOperationException("Unimplemented method 'getBuild'");
   }
 
   private void handleNotification(String methodName, Runnable runnable, boolean async) {
