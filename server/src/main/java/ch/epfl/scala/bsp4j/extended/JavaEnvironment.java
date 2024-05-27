@@ -1,56 +1,67 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
+
 package ch.epfl.scala.bsp4j.extended;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
+/**
+ * JavaEnvironment.
+ 
+ */
 public class JavaEnvironment {
+  private String javaHome;
+  private List<String> jvmArgs;
+
+  public JavaEnvironment() {
+  }
+
+  public JavaEnvironment(String javaHome, List<String> jvmArgs) {
+    this.javaHome = javaHome;
+    this.jvmArgs = jvmArgs;
+  }
+
+  public String getJavaHome() {
+    return javaHome;
+  }
+
+  public void setJavaHome(String javaHome) {
+    this.javaHome = javaHome;
+  }
+
+  public List<String> getJvmArgs() {
+    return jvmArgs;
+  }
+
+  public void setJvmArgs(List<String> jvmArgs) {
+    this.jvmArgs = jvmArgs;
+  }
+
+  /**
+   * Builder for JavaEnvironment.
+   */
+  public static class Builder {
     private String javaHome;
-    private List<String> jvmArgs;
+    private List<String> jvmArgs = new ArrayList<>();
 
-    public JavaEnvironment() {
+    public Builder setJavaHome(String javaHome) {
+      this.javaHome = javaHome;
+      return this;
     }
 
-    public JavaEnvironment(String javaHome, List<String> jvmArgs) {
-        this.javaHome = javaHome;
-        this.jvmArgs = jvmArgs;
+    public Builder addJvmArg(String jvmArg) {
+      this.jvmArgs.add(jvmArg);
+      return this;
     }
 
-    public String getJavaHome() {
-        return javaHome;
+    public Builder addAllJvmArgs(List<String> jvmArgs) {
+      this.jvmArgs.addAll(jvmArgs);
+      return this;
     }
 
-    public void setJavaHome(String javaHome) {
-        this.javaHome = javaHome;
+    public JavaEnvironment build() {
+      return new JavaEnvironment(javaHome, jvmArgs);
     }
-
-    public List<String> getJvmArgs() {
-        return jvmArgs;
-    }
-
-    public void setJvmArgs(List<String> jvmArgs) {
-        this.jvmArgs = jvmArgs;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        JavaEnvironment that = (JavaEnvironment) o;
-        return Objects.equals(javaHome, that.javaHome) && Objects.equals(jvmArgs, that.jvmArgs);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(javaHome, jvmArgs);
-    }
-
-    @Override
-    public String toString() {
-        return "JavaEnvironment{" +
-                "javaHome='" + javaHome + '\'' +
-                ", jvmArgs=" + jvmArgs +
-                '}';
-    }
+  }
 }

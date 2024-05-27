@@ -3,21 +3,25 @@
 
 package ch.epfl.scala.bsp4j.extended;
 
+/**
+ * Progress.
+ */
 public class Progress {
-	private String message;
-  
-	public Progress() {}
-  
-	public Progress(String message) {
-	  this.message = message;
-	}
-  
-	// Getters and Setters
-	public String getMessage() {
-	  return message;
-	}
-  
-	public void setMessage(String message) {
-	  this.message = message;
-	}
+  private String message;
+
+  public Progress() {
   }
+
+  public Progress(String message) {
+    this.message = message;
+  }
+
+  // Getters and Setters
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+}

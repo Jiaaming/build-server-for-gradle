@@ -4,46 +4,22 @@
 package ch.epfl.scala.bsp4j.extended;
 
 /**
- * GetBuildResult.
+ * GetBuildReply.
  
  */
-public class GetBuildResult {
+public class GetBuildReply {
   private BuildKind kind;
   private Progress progress;
   private Output output;
   private Cancelled cancelled;
   private Environment environment;
   private String compatibilityCheckError;
+  private GetBuildResult getBuildResult;
 
-  private boolean success;
-  private String message;
-  private GradleProject project;
-
-  // Getters and setters
-  public boolean isSuccess() {
-    return success;
+  public GetBuildReply() {
   }
 
-  public void setSuccess(boolean success) {
-    this.success = success;
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public GradleProject getProject() {
-    return project;
-  }
-
-  public void setProject(GradleProject project) {
-    this.project = project;
-  }
-
+  // Getters and Setters
   public BuildKind getKind() {
     return kind;
   }
@@ -74,6 +50,14 @@ public class GetBuildResult {
 
   public void setCancelled(Cancelled cancelled) {
     this.cancelled = cancelled;
+  }
+
+  public GetBuildResult getGetBuildResult() {
+    return getBuildResult;
+  }
+
+  public void setGetBuildResult(GetBuildResult getBuildResult) {
+    this.getBuildResult = getBuildResult;
   }
 
   public Environment getEnvironment() {

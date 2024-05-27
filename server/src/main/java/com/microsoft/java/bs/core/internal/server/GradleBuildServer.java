@@ -22,6 +22,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode;
 import com.microsoft.java.bs.core.internal.log.BspTraceEntity;
 import com.microsoft.java.bs.core.internal.services.BuildTargetService;
 import com.microsoft.java.bs.core.internal.services.LifecycleService;
+import com.microsoft.java.bs.core.internal.services.TaskService;
 
 import ch.epfl.scala.bsp4j.BuildServer;
 import ch.epfl.scala.bsp4j.CleanCacheParams;
@@ -63,19 +64,27 @@ import ch.epfl.scala.bsp4j.WorkspaceBuildTargetsResult;
 import ch.epfl.scala.bsp4j.extended.TaskServer;
 import ch.epfl.scala.bsp4j.extended.GetBuildParams;
 import ch.epfl.scala.bsp4j.extended.GetBuildResult;
+
 /**
  * The implementation of the Build Server Protocol.
  */
-public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBuildServer, TaskServer {
+public class GradleBuildServer implements
+    BuildServer, JavaBuildServer, ScalaBuildServer, TaskServer {
 
   private LifecycleService lifecycleService;
 
   private BuildTargetService buildTargetService;
 
+  private TaskService taskService;
+
+  /**
+   * Constructor for {@link GradleBuildServer}.
+   */
   public GradleBuildServer(LifecycleService lifecycleService,
       BuildTargetService buildTargetService) {
     this.lifecycleService = lifecycleService;
     this.buildTargetService = buildTargetService;
+    this.taskService = new TaskService();
   }
 
   @Override
@@ -85,24 +94,23 @@ public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBui
 
   @Override
   public void onBuildInitialized() {
-    handleNotification("build/initialized", lifecycleService::onBuildInitialized, true /*async*/);
+    handleNotification("build/initialized", lifecycleService::onBuildInitialized, true /* async */);
   }
 
   @Override
   public CompletableFuture<Object> buildShutdown() {
-    return handleRequest("build/shutdown", cc ->
-        lifecycleService.shutdown());
+    return handleRequest("build/shutdown", cc -> lifecycleService.shutdown());
   }
 
   @Override
   public void onBuildExit() {
-    handleNotification("build/exit", lifecycleService::exit, false /*async*/);
+    handleNotification("build/exit", lifecycleService::exit, false /* async */);
   }
 
   @Override
   public CompletableFuture<WorkspaceBuildTargetsResult> workspaceBuildTargets() {
-    return handleRequest("workspace/buildTargets", cc ->
-        buildTargetService.getWorkspaceBuildTargets());
+    return handleRequest("workspace/buildTargets", 
+      cc -> buildTargetService.getWorkspaceBuildTargets());
   }
 
   @Override
@@ -115,8 +123,8 @@ public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBui
 
   @Override
   public CompletableFuture<SourcesResult> buildTargetSources(SourcesParams params) {
-    return handleRequest("buildTarget/sources", cc ->
-        buildTargetService.getBuildTargetSources(params));
+    return handleRequest("buildTarget/sources",
+        cc -> buildTargetService.getBuildTargetSources(params));
   }
 
   @Override
@@ -129,20 +137,20 @@ public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBui
   @Override
   public CompletableFuture<DependencySourcesResult> buildTargetDependencySources(
       DependencySourcesParams params) {
-    return handleRequest("buildTarget/dependencySources", cc ->
-            buildTargetService.getBuildTargetDependencySources(params));
+    return handleRequest("buildTarget/dependencySources",
+        cc -> buildTargetService.getBuildTargetDependencySources(params));
   }
 
   @Override
   public CompletableFuture<ResourcesResult> buildTargetResources(ResourcesParams params) {
-    return handleRequest("buildTarget/resources", cc ->
-        buildTargetService.getBuildTargetResources(params));
+    return handleRequest("buildTarget/resources",
+        cc -> buildTargetService.getBuildTargetResources(params));
   }
 
   @Override
   public CompletableFuture<OutputPathsResult> buildTargetOutputPaths(OutputPathsParams params) {
-    return handleRequest("buildTarget/outputPaths", cc ->
-        buildTargetService.getBuildTargetOutputPaths(params));
+    return handleRequest("buildTarget/outputPaths",
+        cc -> buildTargetService.getBuildTargetOutputPaths(params));
   }
 
   @Override
@@ -176,21 +184,21 @@ public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBui
   @Override
   public CompletableFuture<DependencyModulesResult> buildTargetDependencyModules(
       DependencyModulesParams params) {
-    return handleRequest("buildTarget/dependencyModules", cc ->
-        buildTargetService.getBuildTargetDependencyModules(params));
+    return handleRequest("buildTarget/dependencyModules",
+        cc -> buildTargetService.getBuildTargetDependencyModules(params));
   }
 
   @Override
   public CompletableFuture<JavacOptionsResult> buildTargetJavacOptions(JavacOptionsParams params) {
-    return handleRequest("buildTarget/javacOptions", cc ->
-        buildTargetService.getBuildTargetJavacOptions(params));
+    return handleRequest("buildTarget/javacOptions", 
+      cc -> buildTargetService.getBuildTargetJavacOptions(params));
   }
 
   @Override
   public CompletableFuture<ScalacOptionsResult> buildTargetScalacOptions(
       ScalacOptionsParams params) {
-    return handleRequest("buildTarget/scalacOptions", cc ->
-        buildTargetService.getBuildTargetScalacOptions(params));
+    return handleRequest("buildTarget/scalacOptions", 
+        cc -> buildTargetService.getBuildTargetScalacOptions(params));
   }
 
   @Override
@@ -209,8 +217,7 @@ public class GradleBuildServer implements BuildServer, JavaBuildServer, ScalaBui
 
   @Override
   public CompletableFuture<GetBuildResult> getBuild(GetBuildParams params) {
-	// TODO Auto-generated method stub
-	throw new UnsupportedOperationException("Unimplemented method 'getBuild'");
+    return handleRequest("task/getBuild", cc -> taskService.getBuildResult(params));
   }
 
   private void handleNotification(String methodName, Runnable runnable, boolean async) {
