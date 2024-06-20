@@ -15,7 +15,7 @@ import com.microsoft.java.bs.core.internal.managers.PreferenceManager;
 import com.microsoft.java.bs.core.internal.server.GradleBuildServer;
 import com.microsoft.java.bs.core.internal.services.BuildTargetService;
 import com.microsoft.java.bs.core.internal.services.LifecycleService;
-
+import com.microsoft.java.bs.core.internal.utils.ServerNamedPipeStream;
 import ch.epfl.scala.bsp4j.BuildClient;
 
 /**
@@ -26,7 +26,8 @@ public class Launcher {
   public static final Logger LOGGER = Logger.getLogger("GradleBuildServerLogger");
 
   /**
-   * The property name for the directory location storing the plugin and init script.
+   * The property name for the directory location storing the plugin and init
+   * script.
    */
   public static final String PROP_PLUGIN_DIR = "plugin.dir";
 
@@ -42,24 +43,30 @@ public class Launcher {
   }
 
   private static org.eclipse.lsp4j.jsonrpc.Launcher<BuildClient> createLauncher() {
-    BuildTargetManager buildTargetManager = new BuildTargetManager();
-    PreferenceManager preferenceManager = new PreferenceManager();
-    GradleApiConnector connector = new GradleApiConnector(preferenceManager);
-    LifecycleService lifecycleService = new LifecycleService(connector, preferenceManager);
-    BuildTargetService buildTargetService = new BuildTargetService(buildTargetManager,
-        connector, preferenceManager);
-    GradleBuildServer gradleBuildServer = new GradleBuildServer(lifecycleService,
-        buildTargetService);
-    org.eclipse.lsp4j.jsonrpc.Launcher<BuildClient> launcher =
-        new org.eclipse.lsp4j.jsonrpc.Launcher.Builder<BuildClient>()
-          .setOutput(System.out)
-          .setInput(System.in)
+    ServerNamedPipeStream pipeStream = new ServerNamedPipeStream();
+    try {
+      BuildTargetManager buildTargetManager = new BuildTargetManager();
+      PreferenceManager preferenceManager = new PreferenceManager();
+      GradleApiConnector connector = new GradleApiConnector(preferenceManager);
+      LifecycleService lifecycleService = new LifecycleService(connector, preferenceManager);
+      BuildTargetService buildTargetService = new BuildTargetService(buildTargetManager,
+          connector, preferenceManager);
+      GradleBuildServer gradleBuildServer = new GradleBuildServer(lifecycleService,
+          buildTargetService);
+      org.eclipse.lsp4j.jsonrpc.Launcher<BuildClient> launcher = new 
+          org.eclipse.lsp4j.jsonrpc.Launcher.Builder<BuildClient>()
+          .setOutput(pipeStream.getOutputStream())
+          .setInput(pipeStream.getInputStream())
           .setLocalService(gradleBuildServer)
           .setRemoteInterface(BuildClient.class)
           .setExecutorService(Executors.newCachedThreadPool())
           .create();
-    buildTargetService.setClient(launcher.getRemoteProxy());
-    return launcher;
+      buildTargetService.setClient(launcher.getRemoteProxy());
+      return launcher;
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, "Error creating the launcher", e);
+      throw new IllegalStateException("Error creating the launcher", e);
+    }
   }
 
   private static void checkRequiredProperties() {
